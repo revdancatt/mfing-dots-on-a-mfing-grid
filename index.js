@@ -60,6 +60,7 @@ const makeFeatures = () => {
     //  Sometimes 1
     if (fxrand() < 0.2) features.grid = 1
   }
+  // features.grid = 1
 
   //  Predfine the colours for the dots
   features.dotColours = {}
@@ -94,7 +95,7 @@ const makeFeatures = () => {
         yScale: 1,
         zScale: 1,
         resolution: 0.2,
-        amplitude: 0.2
+        amplitude: 0.02
       }
       circleStore[percent].push(page.displace(page.makeCircle(segments, 1), displacement)[0])
     }
@@ -102,11 +103,20 @@ const makeFeatures = () => {
 
   //  Now add a circle to dotCircles from the circleStore
   features.dotCircles = {}
+  const numberOfRings = Math.floor(100 / features.grid)
+
   for (let y = 0; y < features.grid; y++) {
     for (let x = 0; x < features.grid; x++) {
-      let thisCircle = circleStore[100][Math.floor(fxrand() * circleStore[100].length)]
-      thisCircle = page.rotate(thisCircle, fxrand() * 360)[0]
-      features.dotCircles[`${x},${y}`] = thisCircle.points
+      //  We are going to have an array of circles
+      features.dotCircles[`${x},${y}`] = []
+      //  Now add the circles to the array for the number of rings we have
+      for (let i = 0; i < numberOfRings; i++) {
+        //  work out the percentage of the circle we are at
+        const percent = Math.floor((i + 1) * (100 / numberOfRings))
+        let thisCircle = circleStore[percent][Math.floor(fxrand() * circleStore[percent].length)]
+        thisCircle = page.rotate(thisCircle, fxrand() * 360)[0]
+        features.dotCircles[`${x},${y}`].push(thisCircle.points)
+      }
     }
   }
 
@@ -255,20 +265,35 @@ const drawCanvas = async () => {
       dotCtx.fillRect(-gridSize / 2, -gridSize / 2, gridSize, gridSize)
 
       //  Now draw a circle in a random colour for debugging
-      const sizeMod = gridSize / 2 * 0.8
-      dotCtx.lineWidth = w / 200
-      dotCtx.lineJoin = 'round'
-      dotCtx.strokeStyle = features.dotColours[`${x},${y}`]
-      dotCtx.beginPath()
-      //  Grab the first x and y position
-      dotCtx.moveTo(features.dotCircles[`${x},${y}`][0].x * sizeMod, features.dotCircles[`${x},${y}`][0].y * sizeMod)
-      //  Loop thru the rest of the points in the dotCircle array
-      for (let i = 1; i < features.dotCircles[`${x},${y}`].length; i++) {
-        dotCtx.lineTo(features.dotCircles[`${x},${y}`][i].x * sizeMod, features.dotCircles[`${x},${y}`][i].y * sizeMod)
+      const sizeMod = gridSize / 2
+      //  Grab the rings that have been stored for this circle
+      const theseRings = features.dotCircles[`${x},${y}`]
+      const maxRings = theseRings.length
+      const outerSizeMod = 0.85
+      const innerSizeMod = 0.0
+      //  Loop through the rings
+      for (let i = 0; i < maxRings; i++) {
+        //  Grab the ring
+        const ring = theseRings[i]
+        //  Work out the percent of the way through we are
+        const percent = i / maxRings
+        //  Grab the size mod we need to use, so we can scale the rings down from small to large
+        const thisSizeMod = sizeMod * lerp(innerSizeMod, outerSizeMod, percent) - 0.01
+
+        dotCtx.lineWidth = gridSize / 50
+        dotCtx.lineJoin = 'round'
+        dotCtx.strokeStyle = features.dotColours[`${x},${y}`]
+        dotCtx.beginPath()
+        //  Grab the first x and y position
+        dotCtx.moveTo(ring[0].x * thisSizeMod, ring[0].y * thisSizeMod)
+        //  Loop thru the rest of the points in the dotCircle array
+        for (let i = 1; i < ring.length; i++) {
+          dotCtx.lineTo(ring[i].x * thisSizeMod, ring[i].y * thisSizeMod)
+        }
+        //  Close the path
+        dotCtx.closePath()
+        dotCtx.stroke()
       }
-      //  Close the path
-      dotCtx.closePath()
-      dotCtx.stroke()
 
       ctx.save()
       ctx.translate(w / features.grid * x, h / features.grid * y)
