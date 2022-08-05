@@ -87,6 +87,14 @@ const makeFeatures = () => {
   features.allowSmoothVariation = fxrand() < 0.15
   features.allowOffsetVariation = fxrand() < 0.1
 
+  features.shuffly = fxrand() < 0.08
+  if (features.shuffly) {
+    features.allowOffsetVariation = true
+  }
+
+  features.biglyRound = fxrand() < 0.0000
+  features.angle = fxrand() * 90
+
   /*
   // Debug
   features.defaultSize = 0.8
@@ -108,6 +116,8 @@ const makeFeatures = () => {
     //  Sometimes 1
     if (fxrand() < 0.2) features.grid = 1
   }
+  if (features.biglyRound) features.grid += 4
+  if (features.shuffly) features.grid *= 2
   // features.grid = 1
 
   //  Now calculate the dot sizes and wobblyness and other features
@@ -470,6 +480,19 @@ const drawCanvas = async () => {
     To do this we are going to create an offscreen canvas the size of a single grid tile
     and then draw to the dot to it. Then we can copy the dot over to here using a blend mode.
   */
+
+  ctx.save()
+  if (features.shuffly) {
+    ctx.translate(w / 15, h / 15)
+    ctx.scale(0.85, 0.85)
+  }
+
+  if (features.biglyRound) {
+    ctx.translate(w / 10, h / 10)
+    ctx.rotate(10 * Math.PI / 180)
+    // ctx.scale(2, 2)
+  }
+
   // Create the offscreen canvas
   const gridSize = w / features.grid
   const dotTile = new OffscreenCanvas(gridSize, gridSize)
@@ -501,10 +524,6 @@ const drawCanvas = async () => {
       const innerSizeMod = 0.0
       const baseLineSize = gridSize / 2 * outerSizeMod / maxRings * features.dots[`${x},${y}`].liney
 
-      const offsetMod = {
-        x: features.dots[`${x},${y}`].offset.x,
-        y: features.dots[`${x},${y}`].offset.y
-      }
       //  Loop through the rings
       const shades = [theseDark, theseMedium, theseLight]
       const alphas = [1, 0.8, 0.8]
@@ -534,27 +553,39 @@ const drawCanvas = async () => {
             dotCtx.strokeStyle = `hsla(${shade.h}, ${shade.s}%, ${shade.l}%, ${alphas[s]})`
             dotCtx.beginPath()
             //  Grab the first x and y position
-            dotCtx.moveTo(ring[0].x * thisSizeMod * thisBreak.start + (offsetMod.x * gridSize), ring[0].y * thisSizeMod * thisBreak.start + (offsetMod.y * gridSize))
+            dotCtx.moveTo(ring[0].x * thisSizeMod * thisBreak.start, ring[0].y * thisSizeMod * thisBreak.start)
             //  Loop thru the rest of the points in the dotCircle array
             for (let i = 1; i < ring.length; i++) {
               const percent = i / ring.length
               const pointSizeMod = lerp(thisBreak.start, thisBreak.end, percent)
-              dotCtx.lineTo(ring[i].x * thisSizeMod * pointSizeMod + (offsetMod.x * gridSize), ring[i].y * thisSizeMod * pointSizeMod + (offsetMod.y * gridSize))
+              dotCtx.lineTo(ring[i].x * thisSizeMod * pointSizeMod, ring[i].y * thisSizeMod * pointSizeMod)
             }
             dotCtx.stroke()
           }
         }
       }
+
+      const offsetMod = {
+        x: features.dots[`${x},${y}`].offset.x,
+        y: features.dots[`${x},${y}`].offset.y
+      }
+      if (features.shuffly) {
+        offsetMod.x *= 6
+        offsetMod.y *= 6
+      }
+
       dotCtx.globalAlpha = 1
       ctx.save()
-      ctx.translate(w / features.grid * x, h / features.grid * y)
+      ctx.translate(w / features.grid * x + (gridSize * offsetMod.x), h / features.grid * y + (gridSize * offsetMod.y))
+
       ctx.globalCompositeOperation = 'multiply'
       ctx.drawImage(dotTile, 0, 0)
       ctx.restore()
     }
   }
-
   dotCtx.restore()
+
+  ctx.restore()
 }
 
 const autoDownloadCanvas = async (showHash = false) => {
