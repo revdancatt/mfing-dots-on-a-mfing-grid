@@ -77,7 +77,11 @@ const makeFeatures = () => {
   //  Predfine the colours for the dots
   for (let y = 0; y < features.grid; y++) {
     for (let x = 0; x < features.grid; x++) {
-      features.dots[`${x},${y}`].colour = `hsl(${Math.floor(fxrand() * 360)}, ${fxrand() * 50 + 50}%, ${fxrand() * 50 + 25}%)`
+      features.dots[`${x},${y}`].colour = {
+        h: Math.floor(fxrand() * 360),
+        s: fxrand() * 50 + 50,
+        l: fxrand() * 50 + 25
+      }
     }
   }
 
@@ -289,7 +293,8 @@ const drawCanvas = async () => {
         dotCtx.lineWidth = baseLineSize
         dotCtx.lineJoin = 'round'
         dotCtx.lineCap = 'round'
-        dotCtx.strokeStyle = features.dots[`${x},${y}`].colour
+        const col = features.dots[`${x},${y}`].colour
+        dotCtx.strokeStyle = `hsl(${col.h}, ${col.s}%, ${col.l}%)`
         dotCtx.beginPath()
         //  Grab the first x and y position
         dotCtx.moveTo(ring[0].x * thisSizeMod, ring[0].y * thisSizeMod)
