@@ -60,7 +60,7 @@ const makeFeatures = () => {
   features.allowLineVariation = fxrand() < 0.25
 
   //  The breakness of the dots
-  features.defaultBreak = fxrand() * 0.09 + 0.01
+  features.defaultBreak = fxrand() * 0.01 + 0.01
   features.allowBreakVariation = fxrand() < 0.25
 
   //  The smoothness of the dots
@@ -68,7 +68,7 @@ const makeFeatures = () => {
   features.defaultAmplitude = 0
   features.shape = 'smooth'
   //  There is a chance we we will not be smooth
-  if (fxrand() < 0.333) {
+  if (fxrand() < 0.28) {
     features.defaultResolution = 1
     features.defaultAmplitude = 0.05
     features.shape = 'Careless'
@@ -97,8 +97,8 @@ const makeFeatures = () => {
   features.allowOffsetVariation = true
   */
 
-  //  Make a number of grid size, anywhere from 3 to 12
-  features.grid = Math.floor(fxrand() * 9) + 3
+  //  Make a number of grid size, anywhere from 3 to 9
+  features.grid = Math.floor(fxrand() * 6) + 3
   //  If we have the values 3 to 12, it means each one will turn up 100/9 % of the time
   //  11.1111%
   //  But sometimes, far less often we want either 1 or 2 to show up
@@ -165,14 +165,89 @@ const makeFeatures = () => {
     }
   }
 
+  features.colourStrategey = 'random'
+
+  //  Do two bands
+  if (fxrand() < 0.6) {
+    features.colourStrategey = 'duelBand'
+    features.colourBand = 'wide'
+    if (fxrand() < 0.75) features.colourBand = 'narrow'
+  }
+
+  //  Maybe do a single band
+  if (fxrand() < 0.15) {
+    features.colourStrategey = 'singleBand'
+    features.colourBand = 'wide'
+    if (fxrand() < 0.75) features.colourBand = 'narrow'
+  }
+
+  //  Do three bands
+  if (fxrand() < 0.999) {
+    features.colourStrategey = 'triBand'
+    features.colourBand = 'narrow'
+  }
+
+  //  Define the colours and ranges
+  const startPoint1 = fxrand() * 360
+  let startPoint2 = fxrand() * 360
+  let startPoint3 = fxrand() * 360
+  let startPoints = [startPoint1, startPoint2, startPoint3]
+
+  const brightPoint1 = fxrand() < 0.8
+  const brightPoint2 = fxrand() < 0.5
+  const brightPoint3 = fxrand() < 0.2
+  let brightPoints = [brightPoint1, brightPoint2, brightPoint3]
+
+  let width = 360
+
+  //  If we are doing a single band
+  if (features.colourStrategey === 'singleBand') {
+    startPoints = [startPoint1]
+    brightPoints = [brightPoint1]
+    width = 60
+    if (features.colourBand === 'narrow') width = 30
+  }
+
+  //  If we are doing a duel band
+  if (features.colourStrategey === 'duelBand') {
+    //  Default to oppposite bands
+    startPoint2 = startPoint1 + 180
+    //  Some of the time go adjacent not opposite
+    if (fxrand() < 0.5) {
+      startPoint2 = startPoint1 + 120
+      if (fxrand() < 0.5) startPoint2 = startPoint1 + 240
+    }
+
+    startPoints = [startPoint1, startPoint2]
+    brightPoints = [brightPoint1, brightPoint2]
+    width = 60
+    if (features.colourBand === 'narrow') width = 30
+  }
+
+  //  If we are doing a tri band
+  if (features.colourStrategey === 'triBand') {
+    //  Default to oppposite bands
+    startPoint2 = startPoint1 + 120
+    startPoint3 = startPoint1 + 240
+    startPoints = [startPoint1, startPoint2, startPoint3]
+    brightPoints = [brightPoint1, brightPoint2, brightPoint3]
+    width = 60
+    if (features.colourBand === 'narrow') width = 30
+  }
+  console.log(brightPoints)
   //  Predfine the colours for the dots
   for (let y = 0; y < features.grid; y++) {
     for (let x = 0; x < features.grid; x++) {
+      const choice = Math.floor(fxrand() * startPoints.length)
       features.dots[`${x},${y}`].colour = {
-        h: Math.floor(fxrand() * 360),
-        s: fxrand() * 50 + 50,
-        l: fxrand() * 50 + 25
+        h: Math.floor(startPoints[choice] + ((fxrand() * width) - (width / 2))),
+        s: fxrand() * 30 + 30,
+        l: fxrand() * 80 + 10
       }
+      while (features.dots[`${x},${y}`].colour.h < 0) features.dots[`${x},${y}`].colour.h += 360
+      while (features.dots[`${x},${y}`].colour.h > 359) features.dots[`${x},${y}`].colour.h -= 360
+      //  do the saturation
+      if (brightPoints[choice]) features.dots[`${x},${y}`].colour.s = 100
     }
   }
 
