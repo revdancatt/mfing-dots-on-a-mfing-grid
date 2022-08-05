@@ -1,4 +1,4 @@
-/* global preloadImagesTmr fxhash fxrand paper1Loaded OffscreenCanvas page */
+/* global preloadImagesTmr fxhash fxrand paper1Loaded page */
 
 //
 //  fxhash - M'Fing Dots on a M'Fing Grid
@@ -90,9 +90,6 @@ const makeFeatures = () => {
   features.allowOffsetVariation = fxrand() < 0.1
   features.shuffly = fxrand() < 0.08
 
-  features.biglyRound = fxrand() < 0.0000
-  features.angle = fxrand() * 90
-
   /*
   // Debug
   features.defaultSize = 0.8
@@ -114,7 +111,6 @@ const makeFeatures = () => {
     //  Sometimes 1
     if (fxrand() < 0.2) features.grid = 1
   }
-  if (features.biglyRound) features.grid += 4
   if (features.shuffly) features.grid *= 2
   // features.grid = 1
 
@@ -562,16 +558,14 @@ const drawCanvas = async () => {
     ctx.scale(amount, amount)
   }
 
-  if (features.biglyRound) {
-    ctx.translate(w / 10, h / 10)
-    ctx.rotate(10 * Math.PI / 180)
-    // ctx.scale(2, 2)
-  }
-
   // Create the offscreen canvas
   const gridSize = w / features.grid
-  const dotTile = new OffscreenCanvas(gridSize, gridSize)
-  const dotCtx = dotTile.getContext('2d')
+  //  Create a hidden canvas we can use to draw to
+  const dotCanvas = document.createElement('canvas')
+  dotCanvas.width = gridSize
+  dotCanvas.height = gridSize
+  const dotCtx = dotCanvas.getContext('2d')
+
   //  Set the origin to the center of the tile
   dotCtx.save()
   dotCtx.translate(gridSize / 2, gridSize / 2)
@@ -654,7 +648,7 @@ const drawCanvas = async () => {
       ctx.translate(w / features.grid * x + (gridSize * offsetMod.x), h / features.grid * y + (gridSize * offsetMod.y))
 
       ctx.globalCompositeOperation = 'multiply'
-      ctx.drawImage(dotTile, 0, 0)
+      ctx.drawImage(dotCanvas, 0, 0)
       ctx.restore()
     }
   }
