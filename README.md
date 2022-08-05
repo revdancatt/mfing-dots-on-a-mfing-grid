@@ -8,7 +8,13 @@ You can see it running over here: https://revdancatt.github.io/mfing-dots-on-a-m
 
 ## SPEED RUN
 
-The tradition of doing a "speed run" on [fxhash](https://www.fxhash.xyz/) was started by [Alexis André](https://twitter.com/mactuitui) and his [fxhash SpeedRun: any% < 960 minutes](https://www.fxhash.xyz/generative/11995) project, described as "_A performance piece. From cloning the template to a decent piece in less than 960 minutes_"
+The tradition of doing a "speed run" on [fxhash](https://www.fxhash.xyz/) was started by [Alexis André](https://twitter.com/mactuitui) and his "[fxhash SpeedRun: any% < 960 minutes](https://www.fxhash.xyz/generative/11995)" project, described as "_A performance piece. From cloning the template to a decent piece in less than 960 minutes_". 
+
+Two more speed run collections have been created "[Consequence Broadcast](https://www.fxhash.xyz/generative/slug/consequence-broadcast-speed-run)" and "[Beacon](https://www.fxhash.xyz/generative/slug/beacon)" both by [Amy Goodchild](https://twitter.com/amygoodchild).
+
+The `any%` is from game speed running and means "to get to the end with any % finished", meaning you don't have to 100% complete the game, just get to the end credits. For a gen art project it means you can use libraries and copy bits and bobs from your previous code, without having to do everything from scratch.
+
+`< 720` means that it's done in less than 720 minutes, in this case 12 hours.
 
 ## This piece
 
