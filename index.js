@@ -86,11 +86,7 @@ const makeFeatures = () => {
   }
   features.allowSmoothVariation = fxrand() < 0.15
   features.allowOffsetVariation = fxrand() < 0.1
-
   features.shuffly = fxrand() < 0.08
-  if (features.shuffly) {
-    features.allowOffsetVariation = true
-  }
 
   features.biglyRound = fxrand() < 0.0000
   features.angle = fxrand() * 90
@@ -122,58 +118,6 @@ const makeFeatures = () => {
 
   //  Now calculate the dot sizes and wobblyness and other features
   features.dots = {}
-  for (let y = 0; y < features.grid; y++) {
-    for (let x = 0; x < features.grid; x++) {
-      features.dots[`${x},${y}`] = {
-        outerSize: features.defaultSize,
-        resolution: features.defaultResolution,
-        amplitude: features.defaultAmplitude,
-        liney: features.defaultLiney,
-        break: features.defaultBreak,
-        offset: {
-          x: 0,
-          y: 0
-        },
-        breaks: []
-      }
-      //  If we allow line thickness variation between dots that that
-      if (features.allowLineVariation) features.dots[`${x},${y}`].liney = fxrand() * 2 + 2
-      //  If we allow break variation between dots that that
-      if (features.allowBreakVariation) features.dots[`${x},${y}`].break = fxrand() * 0.09 + 0.01
-      //  If we allow size variation between dots that that
-      if (features.allowSizeVariation) features.dots[`${x},${y}`].outerSize = fxrand() * 0.2 + 0.6
-      //  If we allow smooth variation between dots that that
-      if (features.allowSmoothVariation) {
-        features.dots[`${x},${y}`].resolution = 10
-        features.defaultAmplitude = 0
-        features.shape = 'smooth'
-        //  There is a chance we we will not be smooth
-        if (fxrand() < 0.333) {
-          features.dots[`${x},${y}`].resolution = 1
-          features.dots[`${x},${y}`].amplitude = 0.05
-          //  Even less smooth
-          if (fxrand() < 0.3) {
-            features.dots[`${x},${y}`].resolution = 0.8
-            features.dots[`${x},${y}`].amplitude = 0.1
-            if (fxrand() < 0.2) {
-              features.dots[`${x},${y}`].resolution = 0.1
-              features.dots[`${x},${y}`].amplitude = 0.1
-            }
-          }
-        }
-      }
-      //  If offset variation is allowed
-      if (features.allowOffsetVariation) {
-        features.dots[`${x},${y}`].offset.x = fxrand() * 0.1 - 0.05
-        features.dots[`${x},${y}`].offset.y = fxrand() * 0.1 - 0.05
-      }
-
-      // Try to pull back some of the edge cases.
-      if (features.dots[`${x},${y}`].outerSize > 0.75 && features.dots[`${x},${y}`].break && features.dots[`${x},${y}`].resolution === 0.8) {
-        features.dots[`${x},${y}`].outerSize = 0.75
-      }
-    }
-  }
 
   features.colourStrategey = 'random'
 
@@ -244,10 +188,22 @@ const makeFeatures = () => {
     width = 60
     if (features.colourBand === 'narrow') width = 30
   }
-  console.log(brightPoints)
+
+  //  There is a chance we use the black except for one colour
+  if (fxrand() < 0.05) {
+    features.colourStrategey = 'Black but one'
+    if (features.grid < 4) features.grid = 4
+    //  Increase the chance of it being offgrid
+    if (fxrand() < 0.5) features.shuffly = true
+  }
+
+  features.shrinky = false
+  if (!features.shuffly && features.grid > 2) features.shrinky = fxrand() < 0.08
+
   //  Predfine the colours for the dots
   for (let y = 0; y < features.grid; y++) {
     for (let x = 0; x < features.grid; x++) {
+      features.dots[`${x},${y}`] = {}
       const choice = Math.floor(fxrand() * startPoints.length)
       features.dots[`${x},${y}`].colour = {
         h: Math.floor(startPoints[choice] + ((fxrand() * width) - (width / 2))),
@@ -258,6 +214,77 @@ const makeFeatures = () => {
       while (features.dots[`${x},${y}`].colour.h > 359) features.dots[`${x},${y}`].colour.h -= 360
       //  do the saturation
       if (brightPoints[choice]) features.dots[`${x},${y}`].colour.s = 100
+    }
+  }
+
+  //  If we are black but one, then we set everything to black, except for one dot
+  if (features.colourStrategey === 'Black but one') {
+    const saveDot = `${Math.floor(fxrand() * (features.grid - 2)) + 1},${Math.floor(fxrand() * (features.grid - 2)) + 1}`
+    for (let y = 0; y < features.grid; y++) {
+      for (let x = 0; x < features.grid; x++) {
+        //  If it's not the save dot
+        if (`${x},${y}` !== saveDot) {
+          features.dots[`${x},${y}`].colour.l = 0
+        } else {
+          features.dots[`${x},${y}`].colour.s = 100
+          features.dots[`${x},${y}`].colour.l = 50
+        }
+      }
+    }
+  }
+
+  if (features.shuffly) {
+    features.allowOffsetVariation = true
+  }
+
+  for (let y = 0; y < features.grid; y++) {
+    for (let x = 0; x < features.grid; x++) {
+      features.dots[`${x},${y}`].outerSize = features.defaultSize
+      features.dots[`${x},${y}`].resolution = features.defaultResolution
+      features.dots[`${x},${y}`].amplitude = features.defaultAmplitude
+      features.dots[`${x},${y}`].liney = features.defaultLiney
+      features.dots[`${x},${y}`].break = features.defaultBreak
+      features.dots[`${x},${y}`].offset = {
+        x: 0,
+        y: 0
+      }
+      features.dots[`${x},${y}`].breaks = []
+      //  If we allow line thickness variation between dots that that
+      if (features.allowLineVariation) features.dots[`${x},${y}`].liney = fxrand() * 2 + 2
+      //  If we allow break variation between dots that that
+      if (features.allowBreakVariation) features.dots[`${x},${y}`].break = fxrand() * 0.09 + 0.01
+      //  If we allow size variation between dots that that
+      if (features.allowSizeVariation) features.dots[`${x},${y}`].outerSize = fxrand() * 0.2 + 0.6
+      //  If we allow smooth variation between dots that that
+      if (features.allowSmoothVariation) {
+        features.dots[`${x},${y}`].resolution = 10
+        features.defaultAmplitude = 0
+        features.shape = 'smooth'
+        //  There is a chance we we will not be smooth
+        if (fxrand() < 0.333) {
+          features.dots[`${x},${y}`].resolution = 1
+          features.dots[`${x},${y}`].amplitude = 0.05
+          //  Even less smooth
+          if (fxrand() < 0.3) {
+            features.dots[`${x},${y}`].resolution = 0.8
+            features.dots[`${x},${y}`].amplitude = 0.1
+            if (fxrand() < 0.2) {
+              features.dots[`${x},${y}`].resolution = 0.1
+              features.dots[`${x},${y}`].amplitude = 0.1
+            }
+          }
+        }
+      }
+      //  If offset variation is allowed
+      if (features.allowOffsetVariation) {
+        features.dots[`${x},${y}`].offset.x = fxrand() * 0.1 - 0.05
+        features.dots[`${x},${y}`].offset.y = fxrand() * 0.1 - 0.05
+      }
+
+      // Try to pull back some of the edge cases.
+      if (features.dots[`${x},${y}`].outerSize > 0.75 && features.dots[`${x},${y}`].break && features.dots[`${x},${y}`].resolution === 0.8) {
+        features.dots[`${x},${y}`].outerSize = 0.75
+      }
     }
   }
 
@@ -483,8 +510,15 @@ const drawCanvas = async () => {
 
   ctx.save()
   if (features.shuffly) {
-    ctx.translate(w / 15, h / 15)
-    ctx.scale(0.85, 0.85)
+    const amount = 0.85
+    ctx.translate((w - (w * amount)) / 2, (w - (w * amount)) / 2)
+    ctx.scale(amount, amount)
+  }
+
+  if (features.shrinky) {
+    const amount = 0.666
+    ctx.translate((w - (w * amount)) / 2, (w - (w * amount)) / 2)
+    ctx.scale(amount, amount)
   }
 
   if (features.biglyRound) {
