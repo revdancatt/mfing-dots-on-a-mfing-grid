@@ -238,6 +238,30 @@ const makeFeatures = () => {
     features.allowOffsetVariation = true
   }
 
+  //  We're also going to make some circles in a circle store, based on percentages from 1 to 100
+  //  this is because I'm going to display the circles and want to have a variety of them at each
+  //  level, but we need to have less segments as we go down the range
+  let maxSegments = 360
+  let minSegments = 18
+
+  features.altShape = 'No'
+  if (fxrand() < 0.1) {
+    features.altShape = 'Square'
+    maxSegments = 4
+    minSegments = 4
+    features.defaultBreak = -1
+    features.allowBreakVariation = false
+    features.shapeRotation = 0
+    if (fxrand() < 0.5) features.shapeRotation = 45
+    //  Sometimes we have a hexagon, of course
+    if (fxrand() < 0.4) {
+      features.altShape = 'Hexagon'
+      maxSegments = 6
+      minSegments = 6
+      features.shapeRotation = 0
+    }
+  }
+
   for (let y = 0; y < features.grid; y++) {
     for (let x = 0; x < features.grid; x++) {
       features.dots[`${x},${y}`].outerSize = features.defaultSize
@@ -289,11 +313,6 @@ const makeFeatures = () => {
     }
   }
 
-  //  We're also going to make some circles in a circle store, based on percentages from 1 to 100
-  //  this is because I'm going to display the circles and want to have a variety of them at each
-  //  level, but we need to have less segments as we go down the range
-  const maxSegments = 360
-  const minSegments = 18
   //  Now add a circle to dotCircles from the circleStore
   const numberOfRings = Math.floor(100 / features.grid)
   for (let y = 0; y < features.grid; y++) {
@@ -324,8 +343,14 @@ const makeFeatures = () => {
           resolution: features.dots[`${x},${y}`].resolution,
           amplitude: features.dots[`${x},${y}`].amplitude
         }
-        const thisCircle = page.rotate(page.displace(page.makeCircle(segments, 1), displacement), fxrand() * 360)[0]
-        features.dots[`${x},${y}`].circles.push(thisCircle.points)
+        let thisCircle = page.displace(page.makeCircle(segments, 1), displacement)
+        //  If we are not using an alt shape then we can rotate the circle
+        if (features.altShape === 'No') {
+          thisCircle = page.rotate(thisCircle, fxrand() * 360)
+        } else {
+          thisCircle = page.rotate(thisCircle, features.shapeRotation)
+        }
+        features.dots[`${x},${y}`].circles.push(thisCircle[0].points)
 
         // Work out if we are going to break or now.
         const newBreak = {
@@ -334,6 +359,7 @@ const makeFeatures = () => {
         }
         //  If we break then do that here
         if (fxrand() < features.dots[`${x},${y}`].break) {
+          console.log('breaking')
           newBreak.start += fxrand() * 0.2
           newBreak.end -= fxrand() * 0.5
         }
@@ -382,6 +408,7 @@ const makeFeatures = () => {
   window.$fxhashFeatures['Variable Sizes'] = features.allowSizeVariation
   window.$fxhashFeatures['Variable Line Width'] = features.allowLineVariation
   window.$fxhashFeatures['Dot Shapes'] = features.shape
+  window.$fxhashFeatures['Alt Shapes'] = features.altShape
   if (features.allowSmoothVariation) window.$fxhashFeatures['Dot Shapes'] = 'Random'
   window.$fxhashFeatures.Misaligned = features.allowOffsetVariation
   window.$fxhashFeatures['Off Grid'] = features.shuffly
