@@ -257,7 +257,7 @@ const drawCanvas = async () => {
       //  Now draw a circle in a random colour for debugging
       const sizeMod = gridSize / 2 * 0.8
       dotCtx.lineWidth = w / 200
-      dotCtx.join = 'round'
+      dotCtx.lineJoin = 'round'
       dotCtx.strokeStyle = features.dotColours[`${x},${y}`]
       dotCtx.beginPath()
       //  Grab the first x and y position
