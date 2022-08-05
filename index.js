@@ -1,4 +1,4 @@
-/* global preloadImagesTmr fxhash fxrand paper1Loaded OffscreenCanvas */
+/* global preloadImagesTmr fxhash fxrand paper1Loaded OffscreenCanvas page */
 
 //
 //  fxhash - M'Fing Dots on a M'Fing Grid
@@ -27,6 +27,12 @@ let resizeTmr = null
 
 window.$fxhashFeatures = {
   type: 'speedrun %any < 720'
+}
+
+//  Lets make our own lerp function, because we need it
+//  to be fast, and not use Math.lerp, which is slow
+const lerp = (a, b, p) => {
+  return a + (b - a) * p
 }
 
 //  Work out what all our features are
@@ -63,12 +69,37 @@ const makeFeatures = () => {
     }
   }
 
+  //  We're also going to make some circles in a circle store, based on percentages from 1 to 100
+  //  this is because I'm going to display the circles and want to have a variety of them at each
+  //  level, but we need to have less segments as we go down the range
+  const circleStore = {}
+  const maxSegments = 360
+  const minSegments = 18
+  for (let percent = 1; percent <= 100; percent++) {
+    const segments = Math.floor(lerp(minSegments, maxSegments, percent / 100))
+    //  add an array to the circleStore for this percentage that we can add circles to
+    circleStore[percent] = []
+    //  Now add 5 circles to the circleStore for this percentage
+    for (let i = 0; i < 5; i++) {
+      circleStore[percent].push(page.makeCircle(segments, 1)[0])
+    }
+  }
+
+  //  Now add a circle to dotCircles from the circleStore
+  features.dotCircles = {}
+  for (let y = 0; y < features.grid; y++) {
+    for (let x = 0; x < features.grid; x++) {
+      features.dotCircles[`${x},${y}`] = circleStore[100][Math.floor(fxrand() * circleStore[100].length)].points
+    }
+  }
+
   window.$fxhashFeatures['Grid Size'] = features.grid
 }
 
 //  Call the above make features, so we'll have the window.$fxhashFeatures available
 //  for fxhash
 makeFeatures()
+console.log(features)
 console.table(window.$fxhashFeatures)
 
 const init = async () => {
@@ -205,11 +236,21 @@ const drawCanvas = async () => {
       //  Fill the dot tile with white
       dotCtx.fillStyle = '#FFF'
       dotCtx.fillRect(-gridSize / 2, -gridSize / 2, gridSize, gridSize)
+
       //  Now draw a circle in a random colour for debugging
-      dotCtx.fillStyle = features.dotColours[`${x},${y}`]
+      const sizeMod = gridSize / 2 * 0.8
+      dotCtx.lineWidth = w / 500
+      dotCtx.strokeStyle = features.dotColours[`${x},${y}`]
       dotCtx.beginPath()
-      dotCtx.arc(0, 0, gridSize / 2 * 0.8, 0, Math.PI * 2)
-      dotCtx.fill()
+      //  Grab the first x and y position
+      dotCtx.moveTo(features.dotCircles[`${x},${y}`][0].x * sizeMod, features.dotCircles[`${x},${y}`][0].y * sizeMod)
+      //  Loop thru the rest of the points in the dotCircle array
+      for (let i = 1; i < features.dotCircles[`${x},${y}`].length; i++) {
+        dotCtx.lineTo(features.dotCircles[`${x},${y}`][i].x * sizeMod, features.dotCircles[`${x},${y}`][i].y * sizeMod)
+      }
+      //  Close the path
+      dotCtx.closePath()
+      dotCtx.stroke()
 
       ctx.save()
       ctx.translate(w / features.grid * x, h / features.grid * y)

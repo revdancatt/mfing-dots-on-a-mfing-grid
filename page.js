@@ -54,7 +54,7 @@ const page = {
       const newLine = new Line(line.getZindex())
       const points = line.getPoints()
       points.forEach((point) => {
-        newLine.addPoint(page.rounding(point.x + x), page.rounding(point.y + y), page.rounding(point.z + z))
+        newLine.addPoint(point.x + x, point.y + y, point.z + z)
       })
       newLines.push(newLine)
     })
@@ -248,9 +248,9 @@ const page = {
       min,
       max,
       mid: {
-        x: page.rounding(min.x + ((max.x - min.x) / 2)),
-        y: page.rounding(min.y + ((max.y - min.y) / 2)),
-        z: page.rounding(min.z + ((max.z - min.z) / 2))
+        x: min.x + ((max.x - min.x) / 2),
+        y: min.y + ((max.y - min.y) / 2),
+        z: min.z + ((max.z - min.z) / 2)
       }
     }
   },
@@ -269,8 +269,8 @@ const page = {
     const angle = 360 / segments
     for (let s = 0; s <= segments; s++) {
       const adjustedAngle = ((angle * s) * Math.PI / 180)
-      const x = page.rounding(Math.cos(adjustedAngle) * radius)
-      const y = page.rounding(Math.sin(adjustedAngle) * radius)
+      const x = Math.cos(adjustedAngle) * radius
+      const y = Math.sin(adjustedAngle) * radius
       circle.addPoint(x, y)
     }
     return [circle]
