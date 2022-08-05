@@ -1,0 +1,26 @@
+{
+  "name": "mfing-dots-on-a-mfing-grid",
+  "version": "0.0.1",
+  "description": "Dots on a Grid",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://revdancatt@github.com/revdancatt/mfing-dots-on-a-mfing-grid.git"
+  },
+  "keywords": [
+    "fxhash",
+    "genart"
+  ],
+  "author": "revdancatt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/revdancatt/mfing-dots-on-a-mfing-grid/issues"
+  },
+  "homepage": "https://github.com/revdancatt/mfing-dots-on-a-mfing-grid#readme",
+  "devDependencies": {
+    "standard": "^17.0.0"
+  }
+}
