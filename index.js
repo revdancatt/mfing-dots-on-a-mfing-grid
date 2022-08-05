@@ -1,4 +1,4 @@
-/* global preloadImagesTmr fxhash fxrand paper1Loaded */
+/* global preloadImagesTmr fxhash fxrand paper1Loaded OffscreenCanvas */
 
 //
 //  fxhash - M'Fing Dots on a M'Fing Grid
@@ -175,6 +175,42 @@ const drawCanvas = async () => {
     ctx.lineTo(w, h / features.grid * i)
     ctx.stroke()
   }
+
+  /*
+    Now we want to make the "dots".
+
+    To do this we are going to create an offscreen canvas the size of a single grid tile
+    and then draw to the dot to it. Then we can copy the dot over to here using a blend mode.
+  */
+  // Create the offscreen canvas
+  const gridSize = w / features.grid
+  const dotTile = new OffscreenCanvas(gridSize, gridSize)
+  const dotCtx = dotTile.getContext('2d')
+  //  Set the origin to the center of the tile
+  dotCtx.save()
+  dotCtx.translate(gridSize / 2, gridSize / 2)
+
+  //  Draw the dot to the canvas looping over the grid
+  for (let y = 0; y < features.grid; y++) {
+    for (let x = 0; x < features.grid; x++) {
+      //  Fill the dot tile with white
+      dotCtx.fillStyle = '#FFF'
+      dotCtx.fillRect(-gridSize / 2, -gridSize / 2, gridSize, gridSize)
+      //  Now draw a circle in a random colour for debugging
+      dotCtx.fillStyle = `hsl(${Math.floor(fxrand() * 360)}, ${fxrand() * 100}%, ${fxrand() * 100}%)`
+      dotCtx.beginPath()
+      dotCtx.arc(0, 0, gridSize / 2 * 0.8, 0, Math.PI * 2)
+      dotCtx.fill()
+
+      ctx.save()
+      ctx.translate(w / features.grid * x, h / features.grid * y)
+      ctx.globalCompositeOperation = 'multiply'
+      ctx.drawImage(dotTile, 0, 0)
+      ctx.restore()
+    }
+  }
+
+  dotCtx.restore()
 }
 
 const autoDownloadCanvas = async (showHash = false) => {
