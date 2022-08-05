@@ -20,12 +20,52 @@ The `any%` is from game speed running and means "to get to the end with any % fi
 
 `< 720` means that it's done in less than 720 minutes, in this case 12 hours.
 
-## This piece
+## THIS PROJECT
 
-[Add more info here]
+This piece is generally based on Damien Hirst spots, with his simple rule of no exact colour more than once, but I totally broke that rule, of course.
 
-It is generally based on Damien Hirst spots.
+The idea behind the project was to take one of the simplest things in generative art, randomly coloured dots on a grid.
 
-One rule: No exact colour more than once, but I totally broke that rule, of course.
+Many projects use dots on a grid as the base foundation for building more complexity. However, just the dots themselves are often considered too simple to have as a project on their own.
 
+Given the limited amount of time for a 12-hour speed run, I decided to see if I could take something as simple as dots and inject just a little bit of GenArt personality into it. The first step was to add some variation to the shape of the dots.
+
+Instead of using the circle/arc function of the canvas, the dots are built from several circles, themselves composed of many points. Doing this allows me to shuffle and displace those points (based on a noise function) to add distortion to each dot. Sometimes a lot, and sometimes none at all. More points are used on the outer rings than the inner ones to improve performance.
+
+Sometimes the circles are broken and turned into part of a spiral.
+
+Once the shape is established, colours are assigned to each dot and adjusted into three "layers"—a dark, medium and light layer. To add texture and depth to each dot, not all circles are drawn in each layer.
+
+A number of strategies are used to assign colours to the dots. Usually, the dots are divided into one, two or three "buckets" that have a range of colours assigned to them, but there are a couple of special cases for colours.
+
+Other effects are added to the dots; sometimes, the size of the dots can be variable, and sometimes, the positions are shuffled a little.
+
+A more extreme shuffle can be applied to the dots, as well as viewing them from slightly further out (adding a margin to the image).
+
+Finally, rarely special shapes other than circles will be used for the "dots".
+
+By doing this, I've hopefully done more than "simple dots on a grid" but kept the essence of just that in place.
+
+## SAMPLE OUTPUTS
+
+### Single colour strategy
+![Sample dots](https://raw.githubusercontent.com/revdancatt/mfing-dots-on-a-mfing-grid/master/sample-outputs/single.jpg "Single")
+
+### Duo colour strategy
+![Sample dots](https://raw.githubusercontent.com/revdancatt/mfing-dots-on-a-mfing-grid/master/sample-outputs/due.jpg "Duo")
+
+### Tri colour strategy
+![Sample dots](https://raw.githubusercontent.com/revdancatt/mfing-dots-on-a-mfing-grid/master/sample-outputs/tri.jpg "Tri")
+
+### Black dots
+![Sample dots](https://raw.githubusercontent.com/revdancatt/mfing-dots-on-a-mfing-grid/master/sample-outputs/black-dots.jpg "Black dots")
+
+### Off gird
+![Sample dots](https://raw.githubusercontent.com/revdancatt/mfing-dots-on-a-mfing-grid/master/sample-outputs/offgrid2.jpg "Offgird")
+
+### Squares
+![Sample dots](https://raw.githubusercontent.com/revdancatt/mfing-dots-on-a-mfing-grid/master/sample-outputs/squares.jpg "Squares")
+
+### Hexagons
+![Sample dots](https://raw.githubusercontent.com/revdancatt/mfing-dots-on-a-mfing-grid/master/sample-outputs/hexagons.jpg "Hexagons")
 
