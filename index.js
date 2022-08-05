@@ -62,12 +62,21 @@ const makeFeatures = () => {
   }
   // features.grid = 1
 
-  //  Predfine the colours for the dots
+  //  Now calculate the dot sizes and wobblyness and other features
   features.dots = {}
-
   for (let y = 0; y < features.grid; y++) {
     for (let x = 0; x < features.grid; x++) {
-      if (!features.dots[`${x},${y}`]) features.dots[`${x},${y}`] = {}
+      features.dots[`${x},${y}`] = {
+        outerSize: fxrand() * 0.2 + 0.6,
+        resolution: 1,
+        amplitude: 0.05
+      }
+    }
+  }
+
+  //  Predfine the colours for the dots
+  for (let y = 0; y < features.grid; y++) {
+    for (let x = 0; x < features.grid; x++) {
       features.dots[`${x},${y}`].colour = `hsl(${Math.floor(fxrand() * 360)}, ${fxrand() * 50 + 50}%, ${fxrand() * 50 + 25}%)`
     }
   }
@@ -75,49 +84,35 @@ const makeFeatures = () => {
   //  We're also going to make some circles in a circle store, based on percentages from 1 to 100
   //  this is because I'm going to display the circles and want to have a variety of them at each
   //  level, but we need to have less segments as we go down the range
-  const circleStore = {}
   const maxSegments = 360
   const minSegments = 18
-  for (let percent = 1; percent <= 100; percent++) {
-    const segments = Math.floor(lerp(minSegments, maxSegments, percent / 100))
-    //  add an array to the circleStore for this percentage that we can add circles to
-    circleStore[percent] = []
-    //  Now add 5 circles to the circleStore for this percentage
-    for (let i = 0; i < 25; i++) {
-      const displacement = {
-        xShift: 0,
-        yShift: 0,
-        direction: 'normal',
-        weighting: 1,
-        invert: false,
-        xNudge: fxrand() * 1000,
-        yNudge: 0,
-        zNudge: 0,
-        xScale: 1,
-        yScale: 1,
-        zScale: 1,
-        resolution: 1,
-        amplitude: 0.4
-      }
-      circleStore[percent].push(page.displace(page.makeCircle(segments, 1), displacement)[0])
-    }
-  }
-
   //  Now add a circle to dotCircles from the circleStore
-  features.dotCircles = {}
   const numberOfRings = Math.floor(100 / features.grid)
-
   for (let y = 0; y < features.grid; y++) {
     for (let x = 0; x < features.grid; x++) {
       //  We are going to have an array of circles
-      if (!features.dots[`${x},${y}`]) features.dots[`${x},${y}`] = {}
       features.dots[`${x},${y}`].circles = []
       //  Now add the circles to the array for the number of rings we have
       for (let i = 0; i < numberOfRings; i++) {
         //  work out the percentage of the circle we are at
         const percent = Math.floor((i + 1) * (100 / numberOfRings))
-        let thisCircle = circleStore[percent][Math.floor(fxrand() * circleStore[percent].length)]
-        thisCircle = page.rotate(thisCircle, fxrand() * 360)[0]
+        const segments = Math.floor(lerp(minSegments, maxSegments, percent / 100))
+        const displacement = {
+          xShift: 0,
+          yShift: 0,
+          direction: 'normal',
+          weighting: 1,
+          invert: false,
+          xNudge: fxrand() * 1000,
+          yNudge: 0,
+          zNudge: 0,
+          xScale: 1,
+          yScale: 1,
+          zScale: 1,
+          resolution: features.dots[`${x},${y}`].resolution,
+          amplitude: features.dots[`${x},${y}`].amplitude
+        }
+        const thisCircle = page.rotate(page.displace(page.makeCircle(segments, 1), displacement), fxrand() * 360)[0]
         features.dots[`${x},${y}`].circles.push(thisCircle.points)
       }
     }
@@ -277,12 +272,12 @@ const drawCanvas = async () => {
       //  Grab the rings that have been stored for this circle
       const theseRings = features.dots[`${x},${y}`].circles
       const maxRings = theseRings.length
-      const outerSizeMod = 0.7
+      const outerSizeMod = features.dots[`${x},${y}`].outerSize
       const innerSizeMod = 0.0
       const baseLineSize = gridSize / 2 * outerSizeMod / maxRings * 4
 
       //  Loop through the rings
-      dotCtx.globalAlpha = 0.8
+      dotCtx.globalAlpha = 0.6
       for (let i = 0; i < maxRings; i++) {
         //  Grab the ring
         const ring = theseRings[i]
