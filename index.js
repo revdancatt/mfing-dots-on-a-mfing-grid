@@ -26,7 +26,7 @@ const nextFrame = null
 let resizeTmr = null
 
 window.$fxhashFeatures = {
-  type: 'speedrun %any < 720'
+  Type: 'Speedrun %any < 720'
 }
 
 //  Lets make our own lerp function, because we need it
@@ -66,7 +66,7 @@ const makeFeatures = () => {
   //  The smoothness of the dots
   features.defaultResolution = 10
   features.defaultAmplitude = 0
-  features.shape = 'smooth'
+  features.shape = 'Smooth'
   //  There is a chance we we will not be smooth
   if (fxrand() < 0.28) {
     features.defaultResolution = 1
@@ -119,26 +119,27 @@ const makeFeatures = () => {
   //  Now calculate the dot sizes and wobblyness and other features
   features.dots = {}
 
-  features.colourStrategey = 'random'
+  features.colourStrategey = 'Random'
+  features.colourBand = '360'
 
   //  Do two bands
   if (fxrand() < 0.6) {
-    features.colourStrategey = 'duelBand'
-    features.colourBand = 'wide'
-    if (fxrand() < 0.75) features.colourBand = 'narrow'
+    features.colourStrategey = 'Duel Band'
+    features.colourBand = 'Wide'
+    if (fxrand() < 0.75) features.colourBand = 'Narrow'
   }
 
   //  Maybe do a single band
   if (fxrand() < 0.15) {
-    features.colourStrategey = 'singleBand'
-    features.colourBand = 'wide'
-    if (fxrand() < 0.75) features.colourBand = 'narrow'
+    features.colourStrategey = 'Single Band'
+    features.colourBand = 'Wide'
+    if (fxrand() < 0.75) features.colourBand = 'Narrow'
   }
 
   //  Do three bands
   if (fxrand() < 0.1) {
-    features.colourStrategey = 'triBand'
-    features.colourBand = 'narrow'
+    features.colourStrategey = 'Tri Band'
+    features.colourBand = 'Narrow'
   }
 
   //  Define the colours and ranges
@@ -155,15 +156,15 @@ const makeFeatures = () => {
   let width = 360
 
   //  If we are doing a single band
-  if (features.colourStrategey === 'singleBand') {
+  if (features.colourStrategey === 'Single Band') {
     startPoints = [startPoint1]
     brightPoints = [brightPoint1]
     width = 60
-    if (features.colourBand === 'narrow') width = 30
+    if (features.colourBand === 'Narrow') width = 30
   }
 
   //  If we are doing a duel band
-  if (features.colourStrategey === 'duelBand') {
+  if (features.colourStrategey === 'Duel Band') {
     //  Default to oppposite bands
     startPoint2 = startPoint1 + 180
     //  Some of the time go adjacent not opposite
@@ -175,26 +176,26 @@ const makeFeatures = () => {
     startPoints = [startPoint1, startPoint2]
     brightPoints = [brightPoint1, brightPoint2]
     width = 60
-    if (features.colourBand === 'narrow') width = 30
+    if (features.colourBand === 'Narrow') width = 30
   }
 
   //  If we are doing a tri band
-  if (features.colourStrategey === 'triBand') {
+  if (features.colourStrategey === 'Tri Band') {
     //  Default to oppposite bands
     startPoint2 = startPoint1 + 120
     startPoint3 = startPoint1 + 240
     startPoints = [startPoint1, startPoint2, startPoint3]
     brightPoints = [brightPoint1, brightPoint2, brightPoint3]
     width = 60
-    if (features.colourBand === 'narrow') width = 30
+    if (features.colourBand === 'Narrow') width = 30
   }
 
   //  There is a chance we use the black except for one colour
   if (fxrand() < 0.05) {
-    features.colourStrategey = 'Black but one'
+    features.colourStrategey = 'Black But One'
     if (features.grid < 4) features.grid = 4
     //  Increase the chance of it being offgrid
-    if (fxrand() < 0.5) features.shuffly = true
+    if (fxrand() < 0.3) features.shuffly = true
   }
 
   features.shrinky = false
@@ -218,7 +219,7 @@ const makeFeatures = () => {
   }
 
   //  If we are black but one, then we set everything to black, except for one dot
-  if (features.colourStrategey === 'Black but one') {
+  if (features.colourStrategey === 'Black But One') {
     const saveDot = `${Math.floor(fxrand() * (features.grid - 2)) + 1},${Math.floor(fxrand() * (features.grid - 2)) + 1}`
     for (let y = 0; y < features.grid; y++) {
       for (let x = 0; x < features.grid; x++) {
@@ -377,6 +378,16 @@ const makeFeatures = () => {
   }
 
   window.$fxhashFeatures['Grid Size'] = features.grid
+  window.$fxhashFeatures.Dots = features.grid * features.grid
+  window.$fxhashFeatures['Variable Sizes'] = features.allowSizeVariation
+  window.$fxhashFeatures['Variable Line Width'] = features.allowLineVariation
+  window.$fxhashFeatures['Dot Shapes'] = features.shape
+  if (features.allowSmoothVariation) window.$fxhashFeatures['Dot Shapes'] = 'Random'
+  window.$fxhashFeatures.Misaligned = features.allowOffsetVariation
+  window.$fxhashFeatures['Off Grid'] = features.shuffly
+  window.$fxhashFeatures.Inset = features.shrinky
+  window.$fxhashFeatures['Colour Strategey'] = features.colourStrategey
+  window.$fxhashFeatures['Colour Selection Band'] = features.colourBand
 }
 
 //  Call the above make features, so we'll have the window.$fxhashFeatures available
