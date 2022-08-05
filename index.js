@@ -42,6 +42,19 @@ const makeFeatures = () => {
       y: fxrand()
     }
   }
+
+  //  Make a number of grid size, anywhere from 3 to 12
+  features.grid = Math.floor(fxrand() * 9) + 3
+  //  If we have the values 3 to 12, it means each one will turn up 100/9 % of the time
+  //  11.1111%
+  //  But sometimes, far less often we want either 1 or 2 to show up
+  if (fxrand() < 0.06) { // 6%
+    //  Mostly 2
+    features.grid = 2
+    //  Sometimes 1
+    if (fxrand() < 0.2) features.grid = 1
+  }
+  window.$fxhashFeatures['Grid Size'] = features.grid
 }
 
 //  Call the above make features, so we'll have the window.$fxhashFeatures available
@@ -148,6 +161,20 @@ const drawCanvas = async () => {
   ctx.restore()
 
   ctx.globalCompositeOperation = 'source-over'
+
+  //  Draw the grid
+  ctx.strokeStyle = '#AAA'
+  ctx.lineWidth = w / 1000
+  for (let i = 0; i < features.grid; i++) {
+    ctx.beginPath()
+    ctx.moveTo(w / features.grid * i, 0)
+    ctx.lineTo(w / features.grid * i, h)
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.moveTo(0, h / features.grid * i)
+    ctx.lineTo(w, h / features.grid * i)
+    ctx.stroke()
+  }
 }
 
 const autoDownloadCanvas = async (showHash = false) => {
@@ -180,7 +207,6 @@ document.addEventListener('keypress', async (e) => {
 //  This preloads the images so we can get access to them
 // eslint-disable-next-line no-unused-vars
 const preloadImages = () => {
-  console.log('in preloadImages')
   //  If paper1 has loaded and we haven't draw anything yet, then kick it all off
   if (paper1Loaded !== null && !drawn) {
     clearInterval(preloadImagesTmr)
