@@ -80,8 +80,23 @@ const makeFeatures = () => {
     //  add an array to the circleStore for this percentage that we can add circles to
     circleStore[percent] = []
     //  Now add 5 circles to the circleStore for this percentage
-    for (let i = 0; i < 5; i++) {
-      circleStore[percent].push(page.makeCircle(segments, 1)[0])
+    for (let i = 0; i < 25; i++) {
+      const displacement = {
+        xShift: 0,
+        yShift: 0,
+        direction: 'normal',
+        weighting: 1,
+        invert: false,
+        xNudge: fxrand() * 1000,
+        yNudge: 0,
+        zNudge: 0,
+        xScale: 1,
+        yScale: 1,
+        zScale: 1,
+        resolution: 0.2,
+        amplitude: 0.2
+      }
+      circleStore[percent].push(page.displace(page.makeCircle(segments, 1), displacement)[0])
     }
   }
 
@@ -89,7 +104,9 @@ const makeFeatures = () => {
   features.dotCircles = {}
   for (let y = 0; y < features.grid; y++) {
     for (let x = 0; x < features.grid; x++) {
-      features.dotCircles[`${x},${y}`] = circleStore[100][Math.floor(fxrand() * circleStore[100].length)].points
+      let thisCircle = circleStore[100][Math.floor(fxrand() * circleStore[100].length)]
+      thisCircle = page.rotate(thisCircle, fxrand() * 360)[0]
+      features.dotCircles[`${x},${y}`] = thisCircle.points
     }
   }
 
@@ -239,7 +256,8 @@ const drawCanvas = async () => {
 
       //  Now draw a circle in a random colour for debugging
       const sizeMod = gridSize / 2 * 0.8
-      dotCtx.lineWidth = w / 500
+      dotCtx.lineWidth = w / 200
+      dotCtx.join = 'round'
       dotCtx.strokeStyle = features.dotColours[`${x},${y}`]
       dotCtx.beginPath()
       //  Grab the first x and y position

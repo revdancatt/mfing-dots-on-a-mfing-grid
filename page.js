@@ -117,14 +117,6 @@ const page = {
     //  Make sure the lines are an array
     if (!Array.isArray(lines)) lines = [lines]
 
-    //  If we are supposed to do time, then do it
-    const midPoint = {
-      x: page.size[0] / 2,
-      y: page.size[1] / 2
-    }
-    const d = new Date().getTime()
-    const cornerDistance = (midPoint.x * midPoint.x) + (midPoint.y * midPoint.y)
-
     //  Now displace all the points
     lines.forEach((line) => {
       const newLine = new Line(line.getZindex())
@@ -136,23 +128,7 @@ const page = {
           z: point.z
         }
 
-        //  Do the hoop jumping to
-        const weightPoint = {
-          x: point.x + page.size[0] / 2 + displacement.xShift,
-          y: point.y + page.size[1] / 2 + displacement.yShift,
-          z: point.z
-        }
-
         let finalWeightingMod = 1
-        if (displacement.direction === 'topDown') finalWeightingMod = (1 - weightPoint.y / page.size[1]) * 1
-        if (displacement.direction === 'leftRight') finalWeightingMod = (1 - weightPoint.x / page.size[0]) * 1
-        if (displacement.direction === 'middle') {
-          const thisDist = ((midPoint.x - weightPoint.x) * (midPoint.x - weightPoint.x)) + ((midPoint.y - weightPoint.y) * (midPoint.y - weightPoint.y))
-          finalWeightingMod = (0.71 - (thisDist / cornerDistance - (displacement.middleDist / 1000)) * 1)
-        }
-        if (displacement.direction === 'noise') {
-          finalWeightingMod = ((noise.perlin3(weightPoint.x / 20 + (d / 721), weightPoint.y / 20 + (d / 883), d / 1000) + 1) / 2)
-        }
         if (displacement.weighting !== 0) finalWeightingMod *= displacement.weighting
         if (displacement.invert) finalWeightingMod = 1 - finalWeightingMod
 
