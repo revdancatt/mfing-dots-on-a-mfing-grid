@@ -52,7 +52,7 @@ By doing this, I've hopefully done more than "simple dots on a grid" but kept th
 ![Sample dots](https://raw.githubusercontent.com/revdancatt/mfing-dots-on-a-mfing-grid/master/sample-outputs/single.jpg "Single")
 
 ### Duo colour strategy
-![Sample dots](https://raw.githubusercontent.com/revdancatt/mfing-dots-on-a-mfing-grid/master/sample-outputs/due.jpg "Duo")
+![Sample dots](https://raw.githubusercontent.com/revdancatt/mfing-dots-on-a-mfing-grid/master/sample-outputs/duo.jpg "Duo")
 
 ### Tri colour strategy
 ![Sample dots](https://raw.githubusercontent.com/revdancatt/mfing-dots-on-a-mfing-grid/master/sample-outputs/tri.jpg "Tri")
