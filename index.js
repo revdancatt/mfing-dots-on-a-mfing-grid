@@ -49,6 +49,54 @@ const makeFeatures = () => {
     }
   }
 
+  //  Set the defaults, and if we are allowed to vary between dots
+
+  //  The default size of the dots
+  features.defaultSize = fxrand() * 0.2 + 0.6
+  features.allowSizeVariation = fxrand() < 0.1
+
+  //  The lineyness of the dots
+  features.defaultLiney = fxrand() * 2.5 + 2
+  features.allowLineVariation = fxrand() < 0.25
+
+  //  The breakness of the dots
+  features.defaultBreak = fxrand() * 0.09 + 0.01
+  features.allowBreakVariation = fxrand() < 0.25
+
+  //  The smoothness of the dots
+  features.defaultResolution = 10
+  features.defaultAmplitude = 0
+  features.shape = 'smooth'
+  //  There is a chance we we will not be smooth
+  if (fxrand() < 0.333) {
+    features.defaultResolution = 1
+    features.defaultAmplitude = 0.05
+    features.shape = 'Careless'
+    //  Even less smooth
+    if (fxrand() < 0.3) {
+      features.defaultResolution = 0.8
+      features.defaultAmplitude = 0.1
+      features.shape = 'Messy'
+      if (fxrand() < 0.2) {
+        features.defaultResolution = 0.1
+        features.defaultAmplitude = 0.1
+        features.shape = 'Inky'
+      }
+    }
+  }
+  features.allowSmoothVariation = fxrand() < 0.15
+  features.allowOffsetVariation = fxrand() < 0.1
+
+  /*
+  // Debug
+  features.defaultSize = 0.8
+  features.allowSizeVariation = false
+  features.defaultResolution = 0.8
+  features.defaultAmplitude = 0.1
+  features.allowSmoothVariation = false
+  features.allowOffsetVariation = true
+  */
+
   //  Make a number of grid size, anywhere from 3 to 12
   features.grid = Math.floor(fxrand() * 9) + 3
   //  If we have the values 3 to 12, it means each one will turn up 100/9 % of the time
@@ -67,9 +115,52 @@ const makeFeatures = () => {
   for (let y = 0; y < features.grid; y++) {
     for (let x = 0; x < features.grid; x++) {
       features.dots[`${x},${y}`] = {
-        outerSize: fxrand() * 0.2 + 0.6,
-        resolution: 1,
-        amplitude: 0.05
+        outerSize: features.defaultSize,
+        resolution: features.defaultResolution,
+        amplitude: features.defaultAmplitude,
+        liney: features.defaultLiney,
+        break: features.defaultBreak,
+        offset: {
+          x: 0,
+          y: 0
+        },
+        breaks: []
+      }
+      //  If we allow line thickness variation between dots that that
+      if (features.allowLineVariation) features.dots[`${x},${y}`].liney = fxrand() * 2 + 2
+      //  If we allow break variation between dots that that
+      if (features.allowBreakVariation) features.dots[`${x},${y}`].break = fxrand() * 0.09 + 0.01
+      //  If we allow size variation between dots that that
+      if (features.allowSizeVariation) features.dots[`${x},${y}`].outerSize = fxrand() * 0.2 + 0.6
+      //  If we allow smooth variation between dots that that
+      if (features.allowSmoothVariation) {
+        features.dots[`${x},${y}`].resolution = 10
+        features.defaultAmplitude = 0
+        features.shape = 'smooth'
+        //  There is a chance we we will not be smooth
+        if (fxrand() < 0.333) {
+          features.dots[`${x},${y}`].resolution = 1
+          features.dots[`${x},${y}`].amplitude = 0.05
+          //  Even less smooth
+          if (fxrand() < 0.3) {
+            features.dots[`${x},${y}`].resolution = 0.8
+            features.dots[`${x},${y}`].amplitude = 0.1
+            if (fxrand() < 0.2) {
+              features.dots[`${x},${y}`].resolution = 0.1
+              features.dots[`${x},${y}`].amplitude = 0.1
+            }
+          }
+        }
+      }
+      //  If offset variation is allowed
+      if (features.allowOffsetVariation) {
+        features.dots[`${x},${y}`].offset.x = fxrand() * 0.1 - 0.05
+        features.dots[`${x},${y}`].offset.y = fxrand() * 0.1 - 0.05
+      }
+
+      // Try to pull back some of the edge cases.
+      if (features.dots[`${x},${y}`].outerSize > 0.75 && features.dots[`${x},${y}`].break && features.dots[`${x},${y}`].resolution === 0.8) {
+        features.dots[`${x},${y}`].outerSize = 0.75
       }
     }
   }
@@ -96,6 +187,10 @@ const makeFeatures = () => {
     for (let x = 0; x < features.grid; x++) {
       //  We are going to have an array of circles
       features.dots[`${x},${y}`].circles = []
+      features.dots[`${x},${y}`].colour.dark = []
+      features.dots[`${x},${y}`].colour.medium = []
+      features.dots[`${x},${y}`].colour.light = []
+
       //  Now add the circles to the array for the number of rings we have
       for (let i = 0; i < numberOfRings; i++) {
         //  work out the percentage of the circle we are at
@@ -118,6 +213,53 @@ const makeFeatures = () => {
         }
         const thisCircle = page.rotate(page.displace(page.makeCircle(segments, 1), displacement), fxrand() * 360)[0]
         features.dots[`${x},${y}`].circles.push(thisCircle.points)
+
+        // Work out if we are going to break or now.
+        const newBreak = {
+          start: 1,
+          end: 1
+        }
+        //  If we break then do that here
+        if (fxrand() < features.dots[`${x},${y}`].break) {
+          newBreak.start += fxrand() * 0.2
+          newBreak.end -= fxrand() * 0.5
+        }
+
+        features.dots[`${x},${y}`].breaks.push(newBreak)
+
+        //  Now do some colour adjustments
+        //  Grab a new hue
+        let newHue = Math.floor(features.dots[`${x},${y}`].colour.h + fxrand() * 6 - 3)
+        //  Wrap it around the end of the spectrum
+        while (newHue > 359) newHue -= 360
+        while (newHue < 0) newHue += 360
+        //  Create a new medium saturation
+        const midSat = Math.max(Math.min(features.dots[`${x},${y}`].colour.s + fxrand() * 0 - 0, 100), 0)
+        const midLum = Math.max(Math.min(features.dots[`${x},${y}`].colour.l + fxrand() * 0 - 0, 100), 0)
+        //  Make a new darker lum
+        const darkLum = Math.max(Math.min(midLum - (fxrand() * 8), 100), 0)
+        const lightLum = Math.max(Math.min(midLum + (fxrand() * 2), 100), 0)
+        //  Add the dark colour
+        features.dots[`${x},${y}`].colour.dark.push({
+          h: newHue,
+          s: midSat,
+          l: darkLum,
+          show: fxrand() < 0.6
+        })
+        //  Add the medium colour
+        features.dots[`${x},${y}`].colour.medium.push({
+          h: newHue,
+          s: midSat,
+          l: midLum,
+          show: fxrand() < 0.9
+        })
+        //  Add the light colour
+        features.dots[`${x},${y}`].colour.light.push({
+          h: newHue,
+          s: midSat,
+          l: lightLum,
+          show: fxrand() < 0.9
+        })
       }
     }
   }
@@ -275,34 +417,58 @@ const drawCanvas = async () => {
       const sizeMod = gridSize / 2
       //  Grab the rings that have been stored for this circle
       const theseRings = features.dots[`${x},${y}`].circles
+      const theseBreaks = features.dots[`${x},${y}`].breaks
+      const theseDark = features.dots[`${x},${y}`].colour.dark
+      const theseMedium = features.dots[`${x},${y}`].colour.medium
+      const theseLight = features.dots[`${x},${y}`].colour.light
       const maxRings = theseRings.length
       const outerSizeMod = features.dots[`${x},${y}`].outerSize
       const innerSizeMod = 0.0
-      const baseLineSize = gridSize / 2 * outerSizeMod / maxRings * 4
+      const baseLineSize = gridSize / 2 * outerSizeMod / maxRings * features.dots[`${x},${y}`].liney
 
+      const offsetMod = {
+        x: features.dots[`${x},${y}`].offset.x,
+        y: features.dots[`${x},${y}`].offset.y
+      }
       //  Loop through the rings
-      dotCtx.globalAlpha = 0.6
-      for (let i = 0; i < maxRings; i++) {
-        //  Grab the ring
-        const ring = theseRings[i]
-        //  Work out the percent of the way through we are
-        const percent = i / maxRings
-        //  Grab the size mod we need to use, so we can scale the rings down from small to large
-        const thisSizeMod = sizeMod * lerp(innerSizeMod, outerSizeMod, percent) - 0.01
+      const shades = [theseDark, theseMedium, theseLight]
+      const alphas = [1, 0.8, 0.8]
+      const lineMod = [0.8, 1, 0.1]
+      //  Loop through the shades
+      for (let s = 0; s < shades.length; s++) {
+        const thisShade = shades[s]
+        // ctx.globalAlpha = alphas[s]
 
-        dotCtx.lineWidth = baseLineSize
-        dotCtx.lineJoin = 'round'
-        dotCtx.lineCap = 'round'
-        const col = features.dots[`${x},${y}`].colour
-        dotCtx.strokeStyle = `hsl(${col.h}, ${col.s}%, ${col.l}%)`
-        dotCtx.beginPath()
-        //  Grab the first x and y position
-        dotCtx.moveTo(ring[0].x * thisSizeMod, ring[0].y * thisSizeMod)
-        //  Loop thru the rest of the points in the dotCircle array
-        for (let i = 1; i < ring.length; i++) {
-          dotCtx.lineTo(ring[i].x * thisSizeMod, ring[i].y * thisSizeMod)
+        for (let i = 0; i < maxRings; i++) {
+          //  Grab the ring
+          const ring = theseRings[i]
+          const thisBreak = theseBreaks[i]
+          const shade = thisShade[i]
+
+          //  If we are supposed to show this one then we do it
+          if (shade.show) {
+            //  Work out the percent of the way through we are
+            const percent = i / maxRings
+            //  Grab the size mod we need to use, so we can scale the rings down from small to large
+            const thisSizeMod = sizeMod * lerp(innerSizeMod, outerSizeMod, percent) - 0.01
+
+            dotCtx.lineWidth = baseLineSize * lineMod[s]
+            dotCtx.lineJoin = 'round'
+            dotCtx.lineCap = 'round'
+            // const col = features.dots[`${x},${y}`].colour
+            dotCtx.strokeStyle = `hsla(${shade.h}, ${shade.s}%, ${shade.l}%, ${alphas[s]})`
+            dotCtx.beginPath()
+            //  Grab the first x and y position
+            dotCtx.moveTo(ring[0].x * thisSizeMod * thisBreak.start + (offsetMod.x * gridSize), ring[0].y * thisSizeMod * thisBreak.start + (offsetMod.y * gridSize))
+            //  Loop thru the rest of the points in the dotCircle array
+            for (let i = 1; i < ring.length; i++) {
+              const percent = i / ring.length
+              const pointSizeMod = lerp(thisBreak.start, thisBreak.end, percent)
+              dotCtx.lineTo(ring[i].x * thisSizeMod * pointSizeMod + (offsetMod.x * gridSize), ring[i].y * thisSizeMod * pointSizeMod + (offsetMod.y * gridSize))
+            }
+            dotCtx.stroke()
+          }
         }
-        dotCtx.stroke()
       }
       dotCtx.globalAlpha = 1
       ctx.save()
