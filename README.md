@@ -8,4 +8,4 @@ One rule: No exact colour more than once, but I totally broke that rule, of cour
 
 You can see it running over here: https://revdancatt.github.io/mfing-dots-on-a-mfing-grid/
 
-![Sample dots](https://revdancatt.github.io/mfing-dots-on-a-mfing-grid/source-outputs/MFing_Dots_on_a_MFing_Grid_oo3Tu1wbfC5aSpTjk25S3uruVmSBEdJgdEYhhxWPLxx5D2JngBw.jpg?raw=true "Sample Dots")
+![Sample dots](https://raw.githubusercontent.com/revdancatt/mfing-dots-on-a-mfing-grid/master/sample-outputs/MFing_Dots_on_a_MFing_Grid_oo2uAjGpRnfnLrnPDAcFTwtgNecR8Mvpgd5UfQ5AU1ahPoTVcLr.jpg "Sample Dots")
