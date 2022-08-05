@@ -63,10 +63,12 @@ const makeFeatures = () => {
   // features.grid = 1
 
   //  Predfine the colours for the dots
-  features.dotColours = {}
+  features.dots = {}
+
   for (let y = 0; y < features.grid; y++) {
     for (let x = 0; x < features.grid; x++) {
-      features.dotColours[`${x},${y}`] = `hsl(${Math.floor(fxrand() * 360)}, ${fxrand() * 100}%, ${fxrand() * 100}%)`
+      if (!features.dots[`${x},${y}`]) features.dots[`${x},${y}`] = {}
+      features.dots[`${x},${y}`].colour = `hsl(${Math.floor(fxrand() * 360)}, ${fxrand() * 50 + 50}%, ${fxrand() * 50 + 25}%)`
     }
   }
 
@@ -94,8 +96,8 @@ const makeFeatures = () => {
         xScale: 1,
         yScale: 1,
         zScale: 1,
-        resolution: 0.2,
-        amplitude: 0.02
+        resolution: 1,
+        amplitude: 0.4
       }
       circleStore[percent].push(page.displace(page.makeCircle(segments, 1), displacement)[0])
     }
@@ -108,14 +110,15 @@ const makeFeatures = () => {
   for (let y = 0; y < features.grid; y++) {
     for (let x = 0; x < features.grid; x++) {
       //  We are going to have an array of circles
-      features.dotCircles[`${x},${y}`] = []
+      if (!features.dots[`${x},${y}`]) features.dots[`${x},${y}`] = {}
+      features.dots[`${x},${y}`].circles = []
       //  Now add the circles to the array for the number of rings we have
       for (let i = 0; i < numberOfRings; i++) {
         //  work out the percentage of the circle we are at
         const percent = Math.floor((i + 1) * (100 / numberOfRings))
         let thisCircle = circleStore[percent][Math.floor(fxrand() * circleStore[percent].length)]
         thisCircle = page.rotate(thisCircle, fxrand() * 360)[0]
-        features.dotCircles[`${x},${y}`].push(thisCircle.points)
+        features.dots[`${x},${y}`].circles.push(thisCircle.points)
       }
     }
   }
@@ -230,6 +233,7 @@ const drawCanvas = async () => {
   ctx.globalCompositeOperation = 'source-over'
 
   //  Draw the grid
+  /*
   ctx.strokeStyle = '#AAA'
   ctx.lineWidth = w / 1000
   for (let i = 0; i < features.grid; i++) {
@@ -242,6 +246,7 @@ const drawCanvas = async () => {
     ctx.lineTo(w, h / features.grid * i)
     ctx.stroke()
   }
+  */
 
   /*
     Now we want to make the "dots".
@@ -261,19 +266,23 @@ const drawCanvas = async () => {
   for (let y = 0; y < features.grid; y++) {
     for (let x = 0; x < features.grid; x++) {
       //  Fill the dot tile with white
+      /*
       dotCtx.fillStyle = '#FFF'
       dotCtx.fillRect(-gridSize / 2, -gridSize / 2, gridSize, gridSize)
+      */
+      dotCtx.clearRect(-gridSize / 2, -gridSize / 2, gridSize, gridSize)
 
       //  Now draw a circle in a random colour for debugging
       const sizeMod = gridSize / 2
       //  Grab the rings that have been stored for this circle
-      const theseRings = features.dotCircles[`${x},${y}`]
+      const theseRings = features.dots[`${x},${y}`].circles
       const maxRings = theseRings.length
-      const outerSizeMod = 0.85
+      const outerSizeMod = 0.7
       const innerSizeMod = 0.0
-      const baseLineSize = gridSize / 2 * outerSizeMod / maxRings
+      const baseLineSize = gridSize / 2 * outerSizeMod / maxRings * 4
 
       //  Loop through the rings
+      dotCtx.globalAlpha = 0.8
       for (let i = 0; i < maxRings; i++) {
         //  Grab the ring
         const ring = theseRings[i]
@@ -284,7 +293,8 @@ const drawCanvas = async () => {
 
         dotCtx.lineWidth = baseLineSize
         dotCtx.lineJoin = 'round'
-        dotCtx.strokeStyle = features.dotColours[`${x},${y}`]
+        dotCtx.lineCap = 'round'
+        dotCtx.strokeStyle = features.dots[`${x},${y}`].colour
         dotCtx.beginPath()
         //  Grab the first x and y position
         dotCtx.moveTo(ring[0].x * thisSizeMod, ring[0].y * thisSizeMod)
@@ -294,7 +304,7 @@ const drawCanvas = async () => {
         }
         dotCtx.stroke()
       }
-
+      dotCtx.globalAlpha = 1
       ctx.save()
       ctx.translate(w / features.grid * x, h / features.grid * y)
       ctx.globalCompositeOperation = 'multiply'
