@@ -271,6 +271,8 @@ const drawCanvas = async () => {
       const maxRings = theseRings.length
       const outerSizeMod = 0.85
       const innerSizeMod = 0.0
+      const baseLineSize = gridSize / 2 * outerSizeMod / maxRings
+
       //  Loop through the rings
       for (let i = 0; i < maxRings; i++) {
         //  Grab the ring
@@ -280,7 +282,7 @@ const drawCanvas = async () => {
         //  Grab the size mod we need to use, so we can scale the rings down from small to large
         const thisSizeMod = sizeMod * lerp(innerSizeMod, outerSizeMod, percent) - 0.01
 
-        dotCtx.lineWidth = gridSize / 50
+        dotCtx.lineWidth = baseLineSize
         dotCtx.lineJoin = 'round'
         dotCtx.strokeStyle = features.dotColours[`${x},${y}`]
         dotCtx.beginPath()
@@ -290,8 +292,6 @@ const drawCanvas = async () => {
         for (let i = 1; i < ring.length; i++) {
           dotCtx.lineTo(ring[i].x * thisSizeMod, ring[i].y * thisSizeMod)
         }
-        //  Close the path
-        dotCtx.closePath()
         dotCtx.stroke()
       }
 
