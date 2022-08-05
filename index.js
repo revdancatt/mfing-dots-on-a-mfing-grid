@@ -182,7 +182,7 @@ const makeFeatures = () => {
   }
 
   //  Do three bands
-  if (fxrand() < 0.999) {
+  if (fxrand() < 0.1) {
     features.colourStrategey = 'triBand'
     features.colourBand = 'narrow'
   }
