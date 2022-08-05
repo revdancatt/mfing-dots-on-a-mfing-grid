@@ -5,3 +5,5 @@ Is a fxhash speedrun any% < 720 minutes project. Started at 10:30am Fri 5th Augu
 It is generally based on Damien Hirst spots.
 
 One rule: No exact colour more than once.
+
+Page will be running over here: https://revdancatt.github.io/mfing-dots-on-a-mfing-grid/
