@@ -54,6 +54,15 @@ const makeFeatures = () => {
     //  Sometimes 1
     if (fxrand() < 0.2) features.grid = 1
   }
+
+  //  Predfine the colours for the dots
+  features.dotColours = {}
+  for (let y = 0; y < features.grid; y++) {
+    for (let x = 0; x < features.grid; x++) {
+      features.dotColours[`${x},${y}`] = `hsl(${Math.floor(fxrand() * 360)}, ${fxrand() * 100}%, ${fxrand() * 100}%)`
+    }
+  }
+
   window.$fxhashFeatures['Grid Size'] = features.grid
 }
 
@@ -197,7 +206,7 @@ const drawCanvas = async () => {
       dotCtx.fillStyle = '#FFF'
       dotCtx.fillRect(-gridSize / 2, -gridSize / 2, gridSize, gridSize)
       //  Now draw a circle in a random colour for debugging
-      dotCtx.fillStyle = `hsl(${Math.floor(fxrand() * 360)}, ${fxrand() * 100}%, ${fxrand() * 100}%)`
+      dotCtx.fillStyle = features.dotColours[`${x},${y}`]
       dotCtx.beginPath()
       dotCtx.arc(0, 0, gridSize / 2 * 0.8, 0, Math.PI * 2)
       dotCtx.fill()
