@@ -11,6 +11,8 @@
 //  code, than if this was an engineering project. I've tried to keep it somewhat readable
 //  rather than doing clever shortcuts, that are cool, but harder for people to understand.
 //
+//  Repo at: https://github.com/revdancatt/mfing-dots-on-a-mfing-grid
+//
 //  You can find me at...
 //  https://twitter.com/revdancatt
 //  https://instagram.com/revdancatt
@@ -245,7 +247,7 @@ const makeFeatures = () => {
   let minSegments = 18
 
   features.altShape = 'No'
-  if (fxrand() < 0.1) {
+  if (fxrand() < 0.08) {
     features.altShape = 'Square'
     maxSegments = 4
     minSegments = 4
@@ -334,8 +336,8 @@ const makeFeatures = () => {
           direction: 'normal',
           weighting: 1,
           invert: false,
-          xNudge: fxrand() * 1000,
-          yNudge: 0,
+          xNudge: fxrand() * 1000 + 1500,
+          yNudge: fxrand() * 1000 + 2000,
           zNudge: 0,
           xScale: 1,
           yScale: 1,
@@ -369,6 +371,7 @@ const makeFeatures = () => {
         //  Now do some colour adjustments
         //  Grab a new hue
         let newHue = Math.floor(features.dots[`${x},${y}`].colour.h + fxrand() * 6 - 3)
+
         //  Wrap it around the end of the spectrum
         while (newHue > 359) newHue -= 360
         while (newHue < 0) newHue += 360
