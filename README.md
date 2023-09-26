@@ -10,9 +10,9 @@ Given the limited amount of time for a 12-hour speed run, I decided to see if I 
 
 ## Places
 
-* Canonical project page: https://www.fxhash.xyz/generative/14069
-* High-resolution page: https://revdancatt.com/art/33rpm-lp-cover-14069
-* "Right Click Save" edition: https://revdancatt.com/RCS/33rpm-lp-cover-14069
+* Canonical project page: https://www.fxhash.xyz/generative/17648
+* High-resolution page: https://revdancatt.com/art/mfing-dots-on-a-mfing-grid-17648
+* "Right Click Save" edition: https://revdancatt.com/RCS/mfing-dots-on-a-mfing-grid-17648
 
 **Canonical**: where the v1 of the project was first published  
 **High-res**: where the project lives on my website with high-res outputs  
