@@ -4,7 +4,6 @@ Print size is square.
 
 ## Keypresses
 
-'f' - Toggle 'full' sized album cover  
 'h' - toggle high resolution  
 's' - save PNG file  
 
